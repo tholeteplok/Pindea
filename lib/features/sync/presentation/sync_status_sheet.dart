@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -11,6 +13,7 @@ import '../../../shared/widgets/app_button.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../providers/sync_providers.dart';
 import 'qr_pairing_dialog.dart';
+import 'qr_scanner_sheet.dart';
 
 /// Centralized Bottom Sheet for Sync Status and Device Pairing
 class SyncStatusSheet extends ConsumerStatefulWidget {
@@ -53,18 +56,25 @@ class _SyncStatusSheetState extends ConsumerState<SyncStatusSheet> {
     }
   }
 
-  void _openPairingQr() {
-    final hubServer = ref.read(syncHubServerProvider);
-    final userAsync = ref.read(deviceDatabaseProvider);
+  bool get _isMobile => !kIsWeb && (Platform.isAndroid || Platform.isIOS);
 
-    userAsync.select(userAsync.localUsers).get().then((users) {
-      final userId = users.isNotEmpty ? users.first.userId : 'local-user';
-      final payload = hubServer.createPairingSession(userId: userId);
-      if (mounted) {
-        Navigator.of(context).pop(); // Close sheet
-        QrPairingDialog.show(context, payload);
-      }
-    });
+  void _openPairing() {
+    if (_isMobile) {
+      Navigator.of(context).pop(); // Close sheet
+      QrScannerSheet.show(context);
+    } else {
+      final hubServer = ref.read(syncHubServerProvider);
+      final userAsync = ref.read(deviceDatabaseProvider);
+
+      userAsync.select(userAsync.localUsers).get().then((users) {
+        final userId = users.isNotEmpty ? users.first.userId : 'local-user';
+        final payload = hubServer.createPairingSession(userId: userId);
+        if (mounted) {
+          Navigator.of(context).pop(); // Close sheet
+          QrPairingDialog.show(context, payload);
+        }
+      });
+    }
   }
 
   @override
@@ -123,9 +133,12 @@ class _SyncStatusSheetState extends ConsumerState<SyncStatusSheet> {
             ),
             const Spacer(),
             TextButton.icon(
-              onPressed: _openPairingQr,
-              icon: const PhosphorIcon(PhosphorIconsRegular.qrCode, size: 16),
-              label: const Text('Tambah (QR)'),
+              onPressed: _openPairing,
+              icon: PhosphorIcon(
+                _isMobile ? PhosphorIconsRegular.camera : PhosphorIconsRegular.qrCode,
+                size: 16,
+              ),
+              label: Text(_isMobile ? 'Pindai QR' : 'Tambah (QR)'),
             ),
           ],
         ),
@@ -138,7 +151,9 @@ class _SyncStatusSheetState extends ConsumerState<SyncStatusSheet> {
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: AppDimensions.space12),
                 child: Text(
-                  'Belum ada perangkat yang dipasangkan. Klik "Tambah (QR)" untuk menghubungkan Android/PC lain.',
+                  _isMobile
+                      ? 'Belum ada perangkat yang dipasangkan. Klik "Pindai QR" untuk menyorot QR di layar PC.'
+                      : 'Belum ada perangkat yang dipasangkan. Klik "Tambah (QR)" untuk menampilkan QR bagi HP Anda.',
                   style: AppTypography.bodySmall(isDark: isDark),
                 ),
               );

@@ -49,6 +49,7 @@ dependencies:
   http: ^1.6.0
   shelf: ^1.4.2
   image_picker: ^1.1.2
+  mobile_scanner: ^6.0.4
 
 dev_dependencies:
   flutter_test:
