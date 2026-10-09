@@ -33,6 +33,7 @@ class AppDimensions {
   static const double buttonHeight = 44.0;
   static const double chipHeight = 28.0;
   static const double headerHeight = 56.0;
+  static const double quickNoteCardHeight = 152.0;
 
   // Borders & Outlines
   static const double borderWidthThin = 1.0;

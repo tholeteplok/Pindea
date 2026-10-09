@@ -125,7 +125,7 @@ class PinnedStickyStack extends StatelessWidget {
 
   Widget _buildBackingCard({required Color color, required bool isDark}) {
     return Container(
-      height: 140,
+      height: AppDimensions.quickNoteCardHeight,
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(AppDimensions.radiusCard),
@@ -155,115 +155,124 @@ class PinnedStickyStack extends StatelessWidget {
     final textColor = _resolveTextColor(isDark);
     final borderColor = isDark ? AppColors.darkOutline : const Color(0xFFE0D768);
 
-    return Material(
-      color: noteColor,
-      borderRadius: BorderRadius.circular(AppDimensions.radiusCard),
-      elevation: 3,
-      shadowColor: Colors.black.withValues(alpha: isDark ? 0.5 : 0.12),
-      shape: RoundedRectangleBorder(
+    return SizedBox(
+      height: AppDimensions.quickNoteCardHeight,
+      child: Material(
+        color: noteColor,
         borderRadius: BorderRadius.circular(AppDimensions.radiusCard),
-        side: BorderSide(
-          color: borderColor,
-          width: AppDimensions.borderWidthThin,
-        ),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () => onTapNote(note),
-        borderRadius: BorderRadius.circular(AppDimensions.radiusCard),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppDimensions.cardPadding,
-            AppDimensions.space16 + AppDimensions.space4,
-            AppDimensions.cardPadding,
-            AppDimensions.cardPadding,
+        elevation: 3,
+        shadowColor: Colors.black.withValues(alpha: isDark ? 0.5 : 0.12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppDimensions.radiusCard),
+          side: BorderSide(
+            color: borderColor,
+            width: AppDimensions.borderWidthThin,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Header Row: Title & Page Indicator
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Text(
-                      note.title.isNotEmpty ? note.title : 'Catatan Tanpa Judul',
-                      style: AppTypography.headingSmall(isDark: false).copyWith(
-                        color: textColor,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const SizedBox(width: AppDimensions.space8),
-                  // Counter 1/4
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppDimensions.space8,
-                      vertical: AppDimensions.space2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(AppDimensions.radiusPill),
-                    ),
-                    child: Text(
-                      '${currentIndex + 1}/$totalCount',
-                      style: AppTypography.monoLabel(isDark: false).copyWith(
-                        color: textColor,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppDimensions.space12),
-
-              // Blocks Content / Checklist Preview
-              if (note.blocks.isEmpty)
-                Text(
-                  'Catatan ini masih kosong.',
-                  style: AppTypography.bodySmall(isDark: false).copyWith(
-                    color: textColor.withValues(alpha: 0.6),
-                    fontStyle: FontStyle.italic,
-                  ),
-                )
-              else
-                ...note.blocks.take(3).map((block) {
-                  if (block.type == BlockType.checklist) {
-                    return _buildInteractiveChecklistItem(
-                      note: note,
-                      block: block,
-                      textColor: textColor,
-                      isDark: isDark,
-                    );
-                  }
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 3),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (block.type == BlockType.bullet)
-                          Padding(
-                            padding: const EdgeInsets.only(right: 6, top: 1),
-                            child: Text('•', style: TextStyle(color: textColor, fontSize: 13)),
-                          ),
-                        Expanded(
-                          child: Text(
-                            block.content.isNotEmpty ? block.content : '(Tanpa isi)',
-                            style: AppTypography.bodySmall(isDark: false).copyWith(
-                              color: textColor,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () => onTapNote(note),
+          borderRadius: BorderRadius.circular(AppDimensions.radiusCard),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppDimensions.cardPadding,
+              AppDimensions.space16 + AppDimensions.space4,
+              AppDimensions.cardPadding,
+              AppDimensions.cardPaddingCompact,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header Row: Title & Page Indicator
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        note.title.isNotEmpty ? note.title : 'Catatan Tanpa Judul',
+                        style: AppTypography.headingSmall(isDark: false).copyWith(
+                          color: textColor,
+                          fontWeight: FontWeight.bold,
                         ),
-                      ],
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                  );
-                }),
-            ],
+                    const SizedBox(width: AppDimensions.space8),
+                    // Counter 1/4
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppDimensions.space8,
+                        vertical: AppDimensions.space2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(AppDimensions.radiusPill),
+                      ),
+                      child: Text(
+                        '${currentIndex + 1}/$totalCount',
+                        style: AppTypography.monoLabel(isDark: false).copyWith(
+                          color: textColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppDimensions.space8),
+
+                // Blocks Content / Checklist Preview
+                Expanded(
+                  child: note.blocks.isEmpty
+                      ? Padding(
+                          padding: const EdgeInsets.only(top: AppDimensions.space4),
+                          child: Text(
+                            'Catatan ini masih kosong.',
+                            style: AppTypography.bodySmall(isDark: false).copyWith(
+                              color: textColor.withValues(alpha: 0.6),
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        )
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: note.blocks.take(3).map((block) {
+                            if (block.type == BlockType.checklist) {
+                              return _buildInteractiveChecklistItem(
+                                note: note,
+                                block: block,
+                                textColor: textColor,
+                                isDark: isDark,
+                              );
+                            }
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 2),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (block.type == BlockType.bullet)
+                                    Padding(
+                                      padding: const EdgeInsets.only(right: 6, top: 1),
+                                      child: Text('•', style: TextStyle(color: textColor, fontSize: 13)),
+                                    ),
+                                  Expanded(
+                                    child: Text(
+                                      block.content.isNotEmpty ? block.content : '(Tanpa isi)',
+                                      style: AppTypography.bodySmall(isDark: false).copyWith(
+                                        color: textColor,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -377,6 +386,7 @@ class PinnedStickyStack extends StatelessWidget {
           padding: const EdgeInsets.only(top: 8),
           child: Container(
             width: double.infinity,
+            height: AppDimensions.quickNoteCardHeight,
             padding: const EdgeInsets.fromLTRB(
               AppDimensions.cardPadding,
               AppDimensions.space20,

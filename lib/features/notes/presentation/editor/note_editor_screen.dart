@@ -14,6 +14,7 @@ import '../../../../shared/widgets/app_bottom_sheet.dart';
 import '../../../../shared/widgets/app_button.dart';
 import '../../../../shared/widgets/app_dialog.dart';
 import '../../../../shared/widgets/app_scaffold.dart';
+import '../../../../shared/widgets/app_image_viewer.dart';
 import '../../domain/models/block_item.dart';
 import '../../domain/models/note_item.dart';
 import '../../providers/notes_providers.dart';
@@ -791,10 +792,39 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                   ),
                   clipBehavior: Clip.antiAlias,
                   child: (block.url != null && block.url!.isNotEmpty && File(block.url!).existsSync())
-                      ? Image.file(
-                          File(block.url!),
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => _buildImagePlaceholder(isDark),
+                      ? InkWell(
+                          onTap: () => AppImageViewer.open(
+                            context,
+                            imagePath: block.url!,
+                            title: block.content.isNotEmpty ? block.content : null,
+                          ),
+                          child: Stack(
+                            alignment: Alignment.bottomRight,
+                            children: [
+                              Image.file(
+                                File(block.url!),
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) => _buildImagePlaceholder(isDark),
+                              ),
+                              Positioned(
+                                bottom: AppDimensions.space8,
+                                right: AppDimensions.space8,
+                                child: Container(
+                                  padding: const EdgeInsets.all(AppDimensions.space6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withValues(alpha: 0.55),
+                                    borderRadius: BorderRadius.circular(AppDimensions.radiusPill),
+                                  ),
+                                  child: const PhosphorIcon(
+                                    PhosphorIconsRegular.arrowsOutSimple,
+                                    size: 14,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         )
                       : _buildImagePlaceholder(isDark),
                 ),
